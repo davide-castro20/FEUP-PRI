@@ -6,6 +6,8 @@ Remove ", Inc.", ", s.r.o.", (Mac), (Linux), etc
 
 Remove html tags and \r, \t, \n DONE
 
-ask about requirements separation
+ask about requirements separation DONE
 
 ask about category separation
+
+ask about achievements names from steamapi

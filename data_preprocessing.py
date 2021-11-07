@@ -16,10 +16,10 @@ df_steam_descriptions = pd.read_csv('./datasets/steam_description_data.csv', ind
 # df_steam_achievements = pd.read_csv('./datasets/steam_achievements.csv', index_col=0)
 
 # #Change steam.csv English column to bools from binary values.
-# df_steam["english"] = df_steam["english"].astype(bool)
+df_steam["english"] = df_steam["english"].astype(bool)
 
 # #Change date format to Portuguese format
-# df_steam['release_date'] = pd.to_datetime(df_steam['release_date']).dt.strftime('%d/%m/%Y')
+df_steam['release_date'] = pd.to_datetime(df_steam['release_date']).dt.strftime('%d/%m/%Y')
 
 # Remove html tags from games descriptions
 # for desc in ('about_the_game', 'detailed_description', 'short_description'):
@@ -30,8 +30,8 @@ df_steam_descriptions = pd.read_csv('./datasets/steam_description_data.csv', ind
 # print(df_steam_descriptions['detailed_description'].iloc[220])
 
 
-# Remove html tags from requirements and clean up requirements data from JSON format
 
+# Remove html tags from requirements and clean up requirements data from JSON format
 def get_minimum(req):
     if("minimum" in req):
         json_obj = ast.literal_eval(req)
@@ -59,3 +59,9 @@ for req in ('pc_requirements', 'mac_requirements', 'linux_requirements'):
 df_steam_requirements = df_steam_requirements.drop(columns=['pc_requirements', 'mac_requirements', 'linux_requirements', 'minimum', 'recommended'])
 
 
+
+# Transform platforms column into boolean columns
+for plat in ('windows', 'linux', 'mac'):
+    df_steam[plat] = df_steam['platforms'].apply(lambda x: plat in x.split(';')) 
+
+df_steam = df_steam.drop(columns=['platforms'])

@@ -1,8 +1,8 @@
 all: setup_dependencies get_dataset
 
 setup_dependencies:
-	apt install python3-pip
-	pip3 install gdown pandas seaborn numpy matplotlib sklearn
+	sudo apt install python3-pip
+	pip3 install gdown pandas seaborn numpy matplotlib sklearn re
 
 create_dir:
 	mkdir -p datasets

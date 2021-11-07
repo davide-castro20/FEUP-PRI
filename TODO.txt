@@ -1,0 +1,7 @@
+Change steam.csv English column to bools from binary values. DONE
+
+Change date format to Portuguese format. DONE
+
+Remove ", Inc.", ", s.r.o.", (Mac), (Linux), etc
+
+Remove html tags and \r, \t, \n DONE

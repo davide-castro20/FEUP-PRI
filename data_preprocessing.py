@@ -1,4 +1,5 @@
 from datetime import date
+from typing_extensions import final
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -9,11 +10,11 @@ import ast
 import time
 
 df_steam = pd.read_csv('./datasets/steam.csv', index_col=0)
-# df_steam_tags = pd.read_csv('./datasets/steamspy_tag_data.csv', index_col=0)
+df_steam_tags = pd.read_csv('./datasets/steamspy_tag_data.csv', index_col=0)
 df_steam_requirements = pd.read_csv('./datasets/steam_requirements_data.csv', index_col=0)
 df_steam_descriptions = pd.read_csv('./datasets/steam_description_data.csv', index_col=0)
-# df_steam_support = pd.read_csv('./datasets/steam_support_info.csv', index_col=0)
-# df_steam_achievements = pd.read_csv('./datasets/steam_achievements.csv', index_col=0)
+df_steam_support = pd.read_csv('./datasets/steam_support_info.csv', index_col=0)
+df_steam_achievements = pd.read_csv('./datasets/steam_achievements.csv', index_col=0)
 
 # #Change steam.csv English column to bools from binary values.
 df_steam["english"] = df_steam["english"].astype(bool)
@@ -22,10 +23,10 @@ df_steam["english"] = df_steam["english"].astype(bool)
 df_steam['release_date'] = pd.to_datetime(df_steam['release_date']).dt.strftime('%d/%m/%Y')
 
 # Remove html tags from games descriptions
-# for desc in ('about_the_game', 'detailed_description', 'short_description'):
-#     df_steam_descriptions[desc].replace("(<.*?>)","", regex=True, inplace=True)
-#     df_steam_descriptions[desc].replace("\t","", inplace=True)
-#     df_steam_descriptions[desc].replace("(\r)?\n","", regex=True, inplace=True)
+for desc in ('about_the_game', 'detailed_description', 'short_description'):
+    df_steam_descriptions[desc].replace("(<.*?>)","", regex=True, inplace=True)
+    df_steam_descriptions[desc].replace("\t","", inplace=True)
+    df_steam_descriptions[desc].replace("(\r)?\n","", regex=True, inplace=True)
 
 # print(df_steam_descriptions['detailed_description'].iloc[220])
 
@@ -65,3 +66,37 @@ for plat in ('windows', 'linux', 'mac'):
     df_steam[plat] = df_steam['platforms'].apply(lambda x: plat in x.split(';')) 
 
 df_steam = df_steam.drop(columns=['platforms'])
+
+# Transform Category data to bool
+df_steam["categories"] = df_steam["categories"].str.split(";")
+
+category_list = df_steam["categories"].explode().unique().tolist()
+
+df_category = pd.DataFrame()
+
+for category in category_list:
+    df_category[category] = df_steam["categories"].apply(lambda x: category in x)
+
+df_category.to_csv('datasets/steam_categories.csv')
+df_steam = df_steam.drop(columns=["categories"])
+
+# Transform Genres data to bool
+df_steam["genres"] = df_steam["genres"].str.split(";")
+
+genre_list = df_steam["genres"].explode().unique().tolist()
+
+df_genres = pd.DataFrame()
+
+for genre in genre_list:
+    df_genres[genre] = df_steam["genres"].apply(lambda x: genre in x)
+
+df_genres.to_csv('datasets/steam_genres.csv')
+df_steam = df_steam.drop(columns=["genres"])
+
+df_steam.to_csv('datasets/steam.csv')
+
+
+
+
+
+    

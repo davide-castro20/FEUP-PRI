@@ -1,5 +1,4 @@
 from datetime import date
-from typing_extensions import final
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -16,19 +15,27 @@ df_steam_descriptions = pd.read_csv('./datasets/steam_description_data.csv', ind
 df_steam_support = pd.read_csv('./datasets/steam_support_info.csv', index_col=0)
 df_steam_achievements = pd.read_csv('./datasets/steam_achievements.csv', index_col=0)
 
-# #Change steam.csv English column to bools from binary values.
+# Change steam.csv English column to bools from binary values.
 df_steam["english"] = df_steam["english"].astype(bool)
 
-# #Change date format to Portuguese format
+# Change date format to Portuguese format
 df_steam['release_date'] = pd.to_datetime(df_steam['release_date']).dt.strftime('%d/%m/%Y')
+
+# Drop tags and achievements columns (redundant data in the other datasets)
+df_steam = df_steam.drop(columns=['steamspy_tags', 'achievements'])
+
+# Convert interval string ('owners') to pandas interval
+df_steam['owners_range'] = df_steam['owners'].apply(lambda x: pd.Interval(int(x.split('-')[0]), int(x.split('-')[1]), closed='both'))
 
 # Remove html tags from games descriptions
 for desc in ('about_the_game', 'detailed_description', 'short_description'):
     df_steam_descriptions[desc].replace("(<.*?>)","", regex=True, inplace=True)
     df_steam_descriptions[desc].replace("\t","", inplace=True)
     df_steam_descriptions[desc].replace("(\r)?\n","", regex=True, inplace=True)
-
-# print(df_steam_descriptions['detailed_description'].iloc[220])
+    df_steam_descriptions[desc].replace("&quot;",'"', regex=True, inplace=True)
+    df_steam_descriptions[desc].replace("&reg;",'', regex=True, inplace=True)
+    df_steam_descriptions[desc].replace("&trade;",'', regex=True, inplace=True)
+    df_steam_descriptions[desc].replace("&copy;",'', regex=True, inplace=True)
 
 
 
@@ -60,7 +67,6 @@ for req in ('pc_requirements', 'mac_requirements', 'linux_requirements'):
 df_steam_requirements = df_steam_requirements.drop(columns=['pc_requirements', 'mac_requirements', 'linux_requirements', 'minimum', 'recommended'])
 
 
-
 # Transform platforms column into boolean columns
 for plat in ('windows', 'linux', 'mac'):
     df_steam[plat] = df_steam['platforms'].apply(lambda x: plat in x.split(';')) 
@@ -77,7 +83,6 @@ df_category = pd.DataFrame()
 for category in category_list:
     df_category[category] = df_steam["categories"].apply(lambda x: category in x)
 
-df_category.to_csv('datasets/steam_categories.csv')
 df_steam = df_steam.drop(columns=["categories"])
 
 # Transform Genres data to bool
@@ -90,10 +95,14 @@ df_genres = pd.DataFrame()
 for genre in genre_list:
     df_genres[genre] = df_steam["genres"].apply(lambda x: genre in x)
 
-df_genres.to_csv('datasets/steam_genres.csv')
 df_steam = df_steam.drop(columns=["genres"])
 
-df_steam.to_csv('datasets/steam.csv')
+
+df_category.to_csv('clean_datasets/steam_categories.csv')
+df_steam_descriptions.to_csv('clean_datasets/steam_description_data.csv')
+df_steam.to_csv('clean_datasets/steam.csv')
+df_genres.to_csv('clean_datasets/steam_genres.csv')
+df_steam_requirements.to_csv('clean_datasets/steam_requirements_data.csv')
 
 
 

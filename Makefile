@@ -1,4 +1,4 @@
-all: setup_dependencies get_dataset
+all: setup_dependencies get_dataset data_preprocessing
 
 .PHONY: setup_dependencies
 setup_dependencies:
@@ -8,6 +8,10 @@ setup_dependencies:
 .PHONY: create_dir
 create_dir:
 	mkdir -p datasets
+
+.PHONY: data_preprocessing
+data_preprocessing:
+	python3 data_preprocessing.py
 
 .PHONY: get_dataset
 get_dataset: steam_description_data.csv steam_requirements_data.csv steam_support_info.csv steam.csv steamspy_tag_data.csv steam_achievements.csv

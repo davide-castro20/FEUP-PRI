@@ -21,6 +21,13 @@ df_steam["english"] = df_steam["english"].astype(bool)
 # Change date format to Portuguese format
 df_steam['release_date'] = pd.to_datetime(df_steam['release_date']).dt.strftime('%d/%m/%Y')
 
+# Drop tags and achievements columns (redundant data in the other datasets)
+df_steam = df_steam.drop(columns=['steamspy_tags', 'achievements'])
+
+# Convert interval string ('owners') to pandas interval
+df_steam['owners_range'] = df_steam['owners'].apply(lambda x: pd.Interval(int(x.split('-')[0]), int(x.split('-')[1]), closed='both'))
+df_steam = df_steam.drop(columns=['owners'])
+
 # Remove html tags from games descriptions
 for desc in ('about_the_game', 'detailed_description', 'short_description'):
     df_steam_descriptions[desc].replace("(<.*?>)","", regex=True, inplace=True)
@@ -31,19 +38,30 @@ for desc in ('about_the_game', 'detailed_description', 'short_description'):
     df_steam_descriptions[desc].replace("&trade;",'', regex=True, inplace=True)
     df_steam_descriptions[desc].replace("&copy;",'', regex=True, inplace=True)
 
-df_steam_descriptions.to_csv('clean_datasets/steam_description_data.csv')
 
 
 # Remove html tags from requirements and clean up requirements data from JSON format
 def get_minimum(req):
     if("minimum" in req):
         json_obj = ast.literal_eval(req)
-        return json_obj['minimum']
+        minimum = json_obj['minimum']
+        parts = minimum.split('Recommended')
+        return parts[0]
 
 def get_recommended(req):
-    if("recommended\':" in req):     
-        json_obj = ast.literal_eval(req)     
+    json_obj = ast.literal_eval(req)
+    if 'recommended' in json_obj:
         return json_obj['recommended']
+    else: 
+        if('minimum' in json_obj):
+            minimum = json_obj['minimum']
+            parts = minimum.split('Recommended:')
+            if len(parts) == 2:
+                return parts[1]
+            else:
+                return None
+        else:
+            return None
 
 for req in ('pc_requirements', 'mac_requirements', 'linux_requirements'):
     df_steam_requirements[req.replace('requirements','') + "minimum"] = df_steam_requirements[req].apply(get_minimum)
@@ -53,15 +71,15 @@ for req in ('pc_requirements', 'mac_requirements', 'linux_requirements'):
     df_steam_requirements[req.replace('requirements','') + "minimum"].replace("(<.*?>)","", regex=True, inplace=True)
     df_steam_requirements[req.replace('requirements','') + "minimum"].replace("(\r)?\n","", regex=True, inplace=True)
     df_steam_requirements[req.replace('requirements','') + "minimum"].replace("Minimum: ?","", regex=True, inplace=True)
+    df_steam_requirements[req.replace('requirements','') + "minimum"].replace("&reg;",'', regex=True, inplace=True)
     df_steam_requirements[req.replace('requirements','') + "recommended"].replace("\t","", regex=True, inplace=True)
     df_steam_requirements[req.replace('requirements','') + "recommended"].replace("</li>","; ", regex=True, inplace=True)
     df_steam_requirements[req.replace('requirements','') + "recommended"].replace("(<.*?>)","", regex=True, inplace=True)
     df_steam_requirements[req.replace('requirements','') + "recommended"].replace("(\r)?\n","", regex=True, inplace=True)
     df_steam_requirements[req.replace('requirements','') + "recommended"].replace("Recommended: ?","", regex=True, inplace=True)
+    df_steam_requirements[req.replace('requirements','') + "recommended"].replace("&reg;",'', regex=True, inplace=True)
     
 df_steam_requirements = df_steam_requirements.drop(columns=['pc_requirements', 'mac_requirements', 'linux_requirements', 'minimum', 'recommended'])
-
-df_steam_requirements.to_csv('clean_datasets/steam_requirements_data.csv')
 
 
 # Transform platforms column into boolean columns
@@ -80,7 +98,6 @@ df_category = pd.DataFrame()
 for category in category_list:
     df_category[category] = df_steam["categories"].apply(lambda x: category in x)
 
-df_category.to_csv('clean_datasets/steam_categories.csv')
 df_steam = df_steam.drop(columns=["categories"])
 
 # Transform Genres data to bool
@@ -93,10 +110,21 @@ df_genres = pd.DataFrame()
 for genre in genre_list:
     df_genres[genre] = df_steam["genres"].apply(lambda x: genre in x)
 
-df_genres.to_csv('clean_datasets/steam_genres.csv')
 df_steam = df_steam.drop(columns=["genres"])
 
+# Handle multiple developers for one App
+df_devs = pd.DataFrame({'appid': df_steam.index.values, 'developer': df_steam['developer'].values})
+df_devs = df_devs.apply(lambda x: x.astype('str').str.split(';').explode())
+df_steam = df_steam.drop(columns=['developer'])
+
+
+# Save clean files
+df_devs.to_csv('clean_datasets/steam_developers.csv', index=False)
+df_category.to_csv('clean_datasets/steam_categories.csv')
+df_steam_descriptions.to_csv('clean_datasets/steam_description_data.csv')
 df_steam.to_csv('clean_datasets/steam.csv')
+df_genres.to_csv('clean_datasets/steam_genres.csv')
+df_steam_requirements.to_csv('clean_datasets/steam_requirements_data.csv')
 
 
 

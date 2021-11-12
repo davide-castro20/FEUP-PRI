@@ -3,10 +3,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sb
-import re
-import json
 import ast
-import time
+
 
 df_steam = pd.read_csv('./datasets/steam.csv', index_col=0)
 df_steam_tags = pd.read_csv('./datasets/steamspy_tag_data.csv', index_col=0)
@@ -125,9 +123,6 @@ df_steam_descriptions.to_csv('clean_datasets/steam_description_data.csv')
 df_steam.to_csv('clean_datasets/steam.csv')
 df_genres.to_csv('clean_datasets/steam_genres.csv')
 df_steam_requirements.to_csv('clean_datasets/steam_requirements_data.csv')
-
-
-
-
-
-    
+df_steam_tags.to_csv('clean_datasets/steamspy_tag_data.csv')
+df_steam_achievements.to_csv('clean_datasets/steam_achievements.csv')
+df_steam_support.to_csv('clean_datasets/steam_support.csv')

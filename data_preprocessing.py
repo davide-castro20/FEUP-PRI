@@ -13,6 +13,27 @@ df_steam_descriptions = pd.read_csv('./datasets/steam_description_data.csv', ind
 df_steam_support = pd.read_csv('./datasets/steam_support_info.csv', index_col=0)
 df_steam_achievements = pd.read_csv('./datasets/steam_achievements.csv', index_col=0)
 
+
+allIDs = list(df_steam.index.values)
+
+# Remove data about games that are not in the main data table
+df_steam_tags['id'] = df_steam_tags.index
+df_steam_tags = df_steam_tags[df_steam_tags['id'].isin(allIDs)]
+df_steam_tags = df_steam_tags.drop(columns=['id']) 
+
+df_steam_requirements['id'] = df_steam_requirements.index
+df_steam_requirements = df_steam_requirements[df_steam_requirements['id'].isin(allIDs)]
+df_steam_requirements = df_steam_requirements.drop(columns=['id']) 
+
+df_steam_descriptions['id'] = df_steam_descriptions.index
+df_steam_descriptions = df_steam_descriptions[df_steam_descriptions['id'].isin(allIDs)]
+df_steam_descriptions = df_steam_descriptions.drop(columns=['id']) 
+
+df_steam_support['id'] = df_steam_support.index
+df_steam_support = df_steam_support[df_steam_support['id'].isin(allIDs)]
+df_steam_support = df_steam_support.drop(columns=['id']) 
+
+
 # Change steam.csv English column to bools from binary values.
 df_steam["english"] = df_steam["english"].astype(bool)
 

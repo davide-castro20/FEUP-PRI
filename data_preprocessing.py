@@ -136,9 +136,15 @@ df_devs = pd.DataFrame({'appid': df_steam.index.values, 'developer': df_steam['d
 df_devs = df_devs.apply(lambda x: x.astype('str').str.split(';').explode())
 df_steam = df_steam.drop(columns=['developer'])
 
+# Handle multiple publishers for one App
+df_pubs = pd.DataFrame({'appid': df_steam.index.values, 'publisher': df_steam['publisher'].values})
+df_pubs = df_pubs.apply(lambda x: x.astype('str').str.split(';').explode())
+df_steam = df_steam.drop(columns=['publisher'])
+
 
 # Save clean files
 df_devs.to_csv('clean_datasets/steam_developers.csv', index=False)
+df_pubs.to_csv('clean_datasets/steam_publishers.csv', index=False)
 df_category.to_csv('clean_datasets/steam_categories.csv')
 df_steam_descriptions.to_csv('clean_datasets/steam_description_data.csv')
 df_steam.to_csv('clean_datasets/steam.csv')

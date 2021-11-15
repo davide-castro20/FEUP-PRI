@@ -26,7 +26,7 @@ create_dir:
 #	-Transform Genres data to bool
 #	-Drop unnecessary columns
 #	-Separated minimum and recommended requirements into different columns
-#	-Handle multiple developers for one App
+#	-Handle multiple developers and publishers for one app
 .PHONY: data_preprocessing
 data_preprocessing:
 	python3 data_preprocessing.py

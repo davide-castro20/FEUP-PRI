@@ -10,8 +10,14 @@ solr start
 #     --data-binary @/data/simple_schema.json \
 #     http://localhost:8983/solr/courses/schema
 
+# Populate collection via API
+# curl -X POST -H 'Content-type:application/json' \
+#     --data-binary @/data/steam1.json \
+#     http://localhost:8983/solr/games/update?commit=true
+
 # Populate collection
-bin/post -c games /data/steam.json
+bin/post -c games /data/steam1.json
+bin/post -c games /data/steam2.json
 
 # Restart in foreground mode so we can access the interface
 solr restart -f

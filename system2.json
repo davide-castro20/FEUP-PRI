@@ -1,0 +1,20 @@
+POST games/_search
+{
+  "query":
+  {
+    "query_string":
+    {
+      "query": "(Action) AND (Shooter) AND (Free To Play)" 
+    }
+    
+  },
+  "size":20, 
+  "fields": [
+    "name",
+    "price",
+    "genres",
+    "categories",
+    "short_description"
+  ],
+  "_source": false  
+}

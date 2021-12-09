@@ -1,0 +1,39 @@
+POST games/_search
+{
+  
+  "query":
+  {
+    
+    "function_score": {
+      "query": {
+        "query_string": {
+          "query": "(Action) AND (Shooter) AND (Free To Play)",
+          "fields": [
+            "name^0.5",
+            "short_description^0.1",
+            "detailed_description^0.75",
+            "about_the_game^0.2",
+            "categories^1.5",
+            "genres^1.5"
+          ]
+        }
+      },
+
+      "functions": [
+        {
+          
+          "field_value_factor": 
+          {
+            "field": "tags.votes",
+            "factor": 0.02
+          }
+          
+        }
+      ], 
+      "boost_mode": "multiply"
+    }
+  },
+  "size":20, 
+  "fields" : ["name","price","short_description","categories","genres","detailed_description"],
+  "_source": false
+}

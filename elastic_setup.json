@@ -1,3 +1,4 @@
+
 PUT games
 {
   "settings": {
@@ -10,7 +11,8 @@ PUT games
           ],
           "filter": [
             "lowercase",
-            "asciifolding"
+            "asciifolding",
+            "stop"
           ],
           "stopwords": "_english_"
         },

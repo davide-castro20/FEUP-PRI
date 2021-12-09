@@ -53,9 +53,9 @@ for desc in ('about_the_game', 'detailed_description', 'short_description'):
     df_steam_descriptions[desc].replace("\t","", inplace=True)
     df_steam_descriptions[desc].replace("(\r)?\n","", regex=True, inplace=True)
     df_steam_descriptions[desc].replace("&quot;",'"', regex=True, inplace=True)
-    df_steam_descriptions[desc].replace("&reg;",'', regex=True, inplace=True)
-    df_steam_descriptions[desc].replace("&trade;",'', regex=True, inplace=True)
-    df_steam_descriptions[desc].replace("&copy;",'', regex=True, inplace=True)
+    df_steam_descriptions[desc].replace("\u8482",'', regex=True, inplace=True)
+    df_steam_descriptions[desc].replace("\u0174",'', regex=True, inplace=True)
+    df_steam_descriptions[desc].replace("\u0169",'', regex=True, inplace=True)
 
 
 

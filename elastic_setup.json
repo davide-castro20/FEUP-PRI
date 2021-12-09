@@ -1,0 +1,113 @@
+PUT games
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "descriptions_analyzer": {
+          "tokenizer": "standard",
+          "char_filter": [
+            "html_strip"
+          ],
+          "filter": [
+            "lowercase",
+            "asciifolding"
+          ],
+          "stopwords": "_english_"
+        },
+        "achievements_analyzer": {
+          "tokenizer": "achievements_tokenizer",
+          "filter": [
+            "lowercase",
+            "asciifolding"
+          ]
+        },
+        "tags_analyzer": {
+          "tokenizer": "tags_tokenizer"
+        },
+        "names_analyzer": {
+          "tokenizer": "names_tokenizer",
+          "filter": [
+            "lowercase",
+            "asciifolding"
+          ]
+        }
+      },
+      "tokenizer": {
+        "achievements_tokenizer": {
+          "type": "char_group",
+          "tokenize_on_chars": [
+            "whitespace",
+            "-",
+            "_"
+          ]
+        },
+        "tags_tokenizer": {
+          "type": "pattern",
+          "pattern": "(ACHIEVEMENT|ACH)?_"
+        },
+        "names_tokenizer": {
+          "type": "char_group",
+          "tokenize_on_chars": [
+            "whitespace",
+            "-",
+            "_",
+            "®",
+            "™",
+            "©"
+          ]
+        }
+      }
+    }
+  }, 
+  "mappings": {
+    "properties": {
+      
+      "name": {
+        "type": "text",
+        "analyzer": "names_analyzer"
+      },
+      
+      "release_date": {
+        "type": "date",
+        "format": "dd/MM/yyyy"
+      },
+      
+      "owners_range": {
+        "type": "integer_range"
+      },
+      
+      "detailed_description": {
+        "type": "text",
+        "analyzer": "descriptions_analyzer"
+      },
+      
+      "short_description": {
+        "type": "text",
+        "analyzer": "descriptions_analyzer"
+      },
+      
+      "about_the_game": {
+        "type": "text",
+        "analyzer": "descriptions_analyzer"
+      },
+      
+      "achievements": {
+        "properties": {
+          "name": {
+            "type": "text",
+            "analyzer": "achievements_analyzer"
+          }
+        }
+      },
+      
+      "tags": {
+        "properties": {
+          "name": {
+            "type": "text",
+            "analyzer": "tags_analyzer"
+          }
+        }
+      }
+    }
+  }
+}

@@ -109,6 +109,36 @@ PUT games
             "analyzer": "tags_analyzer"
           }
         }
+      },
+
+      "windows": {
+        "type": "boolean", 
+        "index": false
+      },
+      
+      "linux": {
+        "type": "boolean", 
+        "index": false
+      },
+      
+      "mac": {
+        "type": "boolean", 
+        "index": false
+      },
+      
+      "website": {
+        "type": "text", 
+        "index": false
+      },
+      
+      "support_url": {
+        "type": "text", 
+        "index": false
+      },
+      
+      "support_email": {
+        "type": "text", 
+        "index": false
       }
     }
   }

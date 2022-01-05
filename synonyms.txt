@@ -1,0 +1,71 @@
+7DtD, 7 Days to Die
+AoE, Age of Empires
+BG - Baldur's Gate
+BG:SoA, BG2, Baldur's Gate II: Shadows of Amn
+BG:ToB, Baldur's Gate II: Throne of Bhaal
+BG:TotSC, Baldur's Gate: Tales of the Sword Coast
+BS, Banner Saga, BioShock, Broken Sword
+BS1, The Banner Saga, BioShock 1, Broken Sword: The Shadow of the Templars
+BS2, The Banner Saga 2, BioShock 2, Broken Sword II: The Smoking Mirror
+BSI/BS3 - BioShock Infinite
+CoD, Call of Duty
+CoD:BO, Call of Duty: Black Ops
+CoD:MW - Call Of Duty: Modern Warfare
+CoH, Company of Heroes
+CS, Counter Strike, CS:GO, Counter-Strike: Global Offensive
+CT, Chrono Trigger
+DA, Dragon Age
+DAO, Dragon Age: Origins
+DA2, Dragon Age II
+DAI, Dragon Age: Inquisition
+DAH, Destroy All Humans!
+D&D, DnD, Dungeons & Dragons
+DMC, Devil May Cry
+DS, Dark Souls
+DS2, Dark Souls II
+DS3, Dark Souls III
+ESO, Elder Scrolls Online, Elder Sign: Omens
+FF, Final Fantasy
+FNV, Fallout: New Vegas
+GH, Guitar Hero
+GoW, Gears of War
+GoW, God of War
+GTA, Grand Theft Auto
+HL, HALF-LIFE
+HoN, Heroes of Newerth
+IHNMaIMS, I Have No Mouth, and I Must Scream
+KCD, Kingdom Come: Deliverance
+KH, Kingdom Hearts
+LiS, Life is Strange
+LLtQ, Long Live The Queen
+LOZ, Legend of Zelda
+M&B, Mount & Blade
+MCotD, Mordheim: City of the Damned
+ME, ME1, Mass Effect
+ME2, Mass Effect 2
+ME3, Mass Effect 3
+MEA, Mass Effect: Andromeda
+MGS, Metal Gear
+MH, Monster Hunter
+MHFU, Monster Hunter Freedom Unite
+MTGO, Magic: The Gathering Online
+NMS, No Man's Sky
+NWN, Neverwinter Nights
+PES, Pro Evolution Soccer
+PoE, Path of Exile
+PoE, Pillars of Eternity
+RDR, Red Dead Redemption
+RE, Resident Evil
+SoM, Secret of Mana
+SoM, Middle Earth: Shadow of Mordor
+SotC, Shadow of the Colossus
+SSZ, Strike Suit Zero
+TES, Elder Scrolls
+TF2, Team Fortress 2
+TftB, Tales from the Borderlands
+TitS, The Legend of Heroes: Trails in the Sky
+TLG, The Last Guardian
+ToCS, The Legend of Heroes: Trails of Cold Steel
+TW3, The Witcher 3: Wild Hunt
+WoW, Warcraft, World of Warcraft
+ZOE, Zone of the Enders

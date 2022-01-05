@@ -1,8 +1,14 @@
-
 PUT games
 {
   "settings": {
     "analysis": {
+      "filter": 
+      {
+        "my_synonyms": {
+          "type": "synonym",
+          "synonyms_path": "synonyms.txt"
+        }
+      }, 
       "analyzer": {
         "descriptions_analyzer": {
           "tokenizer": "standard",
@@ -30,7 +36,8 @@ PUT games
           "tokenizer": "names_tokenizer",
           "filter": [
             "lowercase",
-            "asciifolding"
+            "asciifolding",
+            "my_synonyms"
           ]
         }
       },

@@ -14,6 +14,7 @@ services:
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
       - ./synonyms.txt:/usr/share/elasticsearch/config/synonyms.txt
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     ports:
       - 9200:9200
       - 9300:9300
@@ -27,6 +28,15 @@ services:
       - 5601:5601
     depends_on:
       - elasticsearch
+
+  frontend:
+    image: nginx:latest
+    container_name: frontend
+    volumes:
+      - ./frontend/:/usr/share/nginx/html/
+    ports:
+      - 8080:80
+     
 
 volumes:
   elasticsearch-data:

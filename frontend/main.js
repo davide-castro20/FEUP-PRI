@@ -7,6 +7,9 @@ queryForm.onsubmit = function(event) {
     let queryText = document.querySelector("input#queryText").value;
     let minPrice = document.querySelector("input#priceMin").value;
     let maxPrice = document.querySelector("input#priceMax").value;
+    let nameSearch = document.getElementById("nameSearch").value;
+    let descriptionSearch = document.getElementById("descriptionSearch").value;
+    let genresSearch = document.getElementById("genresSearch").value;
 
     let data = { 
         "query": {
@@ -53,16 +56,17 @@ queryForm.onsubmit = function(event) {
     }
 
     let data_new = { 
-        "query": {
+        "query": 
+        {
             "bool": {
-                "must": {
+                "must": [
                     
-                }
-            },
-            "filter": [
-                { "range": {"price" : {"gte":  minPrice.length == 0 ? 0 : minPrice }}},
-                { "range": {"price" : {"lte":  maxPrice.length == 0 ? 200 : maxPrice }}}
-            ]
+                ],
+                "filter": [
+                    { "range": {"price" : {"gte":  minPrice.length == 0 ? 0 : minPrice }}},
+                    { "range": {"price" : {"lte":  maxPrice.length == 0 ? 200 : maxPrice }}}
+                ]
+            }
         },
         "size":20, 
         "fields": [
@@ -73,8 +77,26 @@ queryForm.onsubmit = function(event) {
         ],
         "_source": false
     }
+    let queryToSend = data;
+    if(nameSearch.length != 0){
+        data_new.query.bool.must.push({ "match": {"name":nameSearch}})
+        queryToSend = data_new;
+    }
+    
+    if(descriptionSearch.length != 0){
+        data_new.query.bool.must.push({ "match": {"short_description":descriptionSearch}})
+        queryToSend = data_new;
+    }
 
-    sendAjaxRequest("POST", "http://localhost:9200/games/_search", JSON.stringify(data), function() {
+    if(genresSearch.length != 0){
+        data_new.query.bool.filter.push({"match": {"genres": genresSearch}})
+        queryToSend = data_new;
+    }
+    if(minPrice.length != 0 || maxPrice.length != 0){
+        queryToSend = data_new;
+    }
+
+    sendAjaxRequest("POST", "http://localhost:9200/games/_search", JSON.stringify(queryToSend), function() {
         if (this.status != 200)
             return;
 

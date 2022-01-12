@@ -2,7 +2,7 @@
 AoE, Age of Empires
 BG - Baldur's Gate
 BG:SoA, BG2, Baldur's Gate II: Shadows of Amn
-BG:ToB, Baldur's Gate II: Throne of Bhaal
+BG:ToB, BG2, Baldur's Gate II: Throne of Bhaal
 BG:TotSC, Baldur's Gate: Tales of the Sword Coast
 BS, Banner Saga, BioShock, Broken Sword
 BS1, The Banner Saga, BioShock 1, Broken Sword: The Shadow of the Templars

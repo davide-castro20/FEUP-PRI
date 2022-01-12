@@ -16,7 +16,7 @@ services:
       - ./synonyms.txt:/usr/share/elasticsearch/config/synonyms.txt
       - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     ports:
-      - 9200:9200
+      - 127.0.0.1:9200:9200
       - 9300:9300
 
   kibana:

@@ -1,85 +1,8 @@
-POST test/_analyze
-{
-  "analyzer": "my_analyzer",
-  "text":"This game if free to play and is a first person shooter"
-}
+import json
+from elasticsearch import Elasticsearch
+import requests
 
-
-DELETE test
-PUT test
-{
-  "settings": {
-    "analysis": {
-      "analyzer": {
-        "my_analyzer": {
-          "tokenizer": "my_tokenizer"
-        }
-      },
-      "tokenizer": {
-        "my_tokenizer": {
-          "type": "pattern",
-          "pattern": "((free to play)|(first person shooter)|([a-zA-Z]+))",
-          "group":1
-        }
-      }
-    }
-  }
-}
-
-POST games/_search
-{
-  
-  "query":
-  {
-    
-    "function_score": {
-      "query": {
-        "query_string": {
-          "query": "first person shooter" ,
-          "fields": [
-            "name^0.5",
-            "short_description^0.1",
-            "detailed_description^0.75",
-            "about_the_game^0.2",
-            "categories^1.5",
-            "genres^1.5",
-            "developers^1",
-            "publishers^0.2"
-          ]
-        }
-      },
-
-      "functions": [
-        {
-          
-          "field_value_factor": 
-          {
-            "field": "tags.votes",
-            "factor": 0.02
-          }
-          
-        }
-      ], 
-      "boost_mode": "multiply"
-    }
-  },
-  "size":20, 
-  "fields": [
-    "name",
-    "price",
-    "genres",
-    "categories",
-    "developers",
-    "publishers",
-    "detailed_description",
-    "tags.name"
-  ],
-  "_source": false
-}
-
-DELETE games
-PUT games
-{
+mapping = {
   "settings": {
     "analysis": {
       "filter": 
@@ -205,33 +128,58 @@ PUT games
 
       "windows": {
         "type": "boolean", 
-        "index": false
+        "index": False
       },
       
       "linux": {
         "type": "boolean", 
-        "index": false
+        "index": False
       },
       
       "mac": {
         "type": "boolean", 
-        "index": false
+        "index": False
       },
       
       "website": {
         "type": "text", 
-        "index": false
+        "index": False
       },
       
       "support_url": {
         "type": "text", 
-        "index": false
+        "index": False
       },
       
       "support_email": {
         "type": "text", 
-        "index": false
+        "index": False
       }
     }
   }
 }
+
+requests.delete('http://localhost:9200/games')
+headers = {"Content-Type": "application/json"}
+r = requests.put('http://localhost:9200/games', data=mapping, headers=headers)
+print(r)
+
+f1 = open("elastic_datasets/steam.json", "r")
+steam_json = json.load(f1)
+
+es = Elasticsearch()
+i = 1
+c = 1000
+data_send = []
+for doc in steam_json:
+    data_send.append({"index" : { "_index" : "games", "_id" : str(i)} })
+    data_send.append(doc)
+    i = i + 1
+    if(c == 0):
+        response = es.bulk(index='games', body=data_send)
+        c = 1000
+        data_send = []
+    c -= 1
+
+if len(data_send) > 0:
+    response = es.bulk(index='games', body=data_send)

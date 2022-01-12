@@ -107,7 +107,7 @@ queryForm.onsubmit = function(event) {
             sort = '[{"'+option[0]+'" : "'+option[1]+'" }]';  
         }
         else{
-            sort = '[{"'+option[0]+'" : {"order" : "'+option[1]+'"}}]';  
+            sort = '[{"'+option[0]+'" : {"order" : "'+option[1]+'", "format": "dd/MM/yyyy"}}]';  
         }
         console.log(sort);
         queryToSend["sort"] = JSON.parse(sort);

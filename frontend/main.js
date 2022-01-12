@@ -1,10 +1,12 @@
-queryForm = document.querySelector("form#query");
+queryForm = document.querySelector("form#search");
 queryResults = document.querySelector("ul#results");
 
 queryForm.onsubmit = function(event) {
     event.preventDefault();
 
     let queryText = document.querySelector("input#queryText").value;
+    let minPrice = document.querySelector("input#priceMin").value;
+    let maxPrice = document.querySelector("input#priceMax").value;
 
     let data = { 
         "query": {
@@ -34,21 +36,40 @@ queryForm.onsubmit = function(event) {
                     "factor": 0.02
                     }
                     
-                }
+                },
                 ], 
                 "boost_mode": "multiply"
             }
+
         },
         "size":20, 
         "fields": [
           "name",
           "price",
           "genres",
-          "categories",
-          "developers",
-          "publishers",
-          "detailed_description",
-          "tags.name"
+          "short_description"
+        ],
+        "_source": false
+    }
+
+    let data_new = { 
+        "query": {
+            "bool": {
+                "must": {
+                    
+                }
+            },
+            "filter": [
+                { "range": {"price" : {"gte":  minPrice.length == 0 ? 0 : minPrice }}},
+                { "range": {"price" : {"lte":  maxPrice.length == 0 ? 200 : maxPrice }}}
+            ]
+        },
+        "size":20, 
+        "fields": [
+          "name",
+          "price",
+          "genres",
+          "short_description"
         ],
         "_source": false
     }
@@ -59,32 +80,58 @@ queryForm.onsubmit = function(event) {
 
         responseJson = JSON.parse(this.responseText);
 
+        if (document.querySelector("ul#results") == null) {
+            let resultsDiv = document.createElement("div");
+            resultsDiv.setAttribute("class", "advance-search");
+            resultsDiv.style = "margin-top: 1em;";
+            let resultsList = document.createElement("ul");
+            resultsList.setAttribute("id", "results");
+            resultsDiv.appendChild(resultsList);
+            document.querySelector("div.inner-form").appendChild(resultsDiv);
+            queryResults = resultsList;
+        }
+
         // no results
         let hits = responseJson["hits"]["hits"];
         if (hits.length == 0) {
-            queryResults.innerHTML = "No results"
+            queryResults.innerHTML = "No results";
+            document.getElementById("numberResults").innerHTML = 0;
             return;
         }
 
-        console.log(hits);
+        // console.log(hits);
         queryResults.innerHTML = "";
 
         for (let i = 0; i < hits.length; ++i) {
             let listObj = document.createElement("li");
             let fields = hits[i]["fields"];
-            queryResults.innerHTML += JSON.stringify(fields)
+            let element = `
+            <li style="margin:1em;">
+                <p><strong>Name</strong>: ` + fields["name"][0] + `</p>
+                <p><strong>Price</strong>: ` + fields["price"][0] + `</p>
+                <p><strong>Description</strong>: `+ fields["short_description"][0] + `</p>
+                <div>
+                    <p><strong>Genres</strong>:</p>
+                    <ul>
+            `;
+
+            for (let j = 0; j < fields["genres"].length; ++j) {
+                element += "<p>" + fields["genres"][j] + "\n";
+            }
+
+            element += `
+                    </ul>
+                </div>
+            </li>
+            <hr>
+            `;
+            queryResults.innerHTML += element;
         }
         // queryResults.innerHTML = this.responseText;
+
+        document.getElementById("numberResults").innerHTML = hits.length;
     });
 
-}
-
-
-function encodeForAjax(data) {
-    if (data == null) return null;
-    return Object.keys(data).map(function(k){
-      return encodeURIComponent(k) + '=' + encodeURIComponent(data[k])
-    }).join('&');
 }
 
 function sendAjaxRequest(method, url, data, handler) {

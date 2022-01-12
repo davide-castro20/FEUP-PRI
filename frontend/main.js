@@ -10,6 +10,7 @@ queryForm.onsubmit = function(event) {
     let nameSearch = document.getElementById("nameSearch").value;
     let descriptionSearch = document.getElementById("descriptionSearch").value;
     let genresSearch = document.getElementById("genresSearch").value;
+    let sortOption = document.getElementById("sort").value;
 
     let data = { 
         "query": {
@@ -50,7 +51,8 @@ queryForm.onsubmit = function(event) {
           "name",
           "price",
           "genres",
-          "short_description"
+          "short_description",
+          "release_date"
         ],
         "_source": false
     }
@@ -73,7 +75,8 @@ queryForm.onsubmit = function(event) {
           "name",
           "price",
           "genres",
-          "short_description"
+          "short_description",
+          "release_date"
         ],
         "_source": false
     }
@@ -96,11 +99,27 @@ queryForm.onsubmit = function(event) {
         queryToSend = data_new;
     }
 
+    if(sortOption != "-1"){
+    
+        let option = sortOption.split("-");
+        let sort = "";
+        if(option[0] != "release_date"){
+            sort = '[{"'+option[0]+'" : "'+option[1]+'" }]';  
+        }
+        else{
+            sort = '[{"'+option[0]+'" : {"order" : "'+option[1]+'"}}]';  
+        }
+        console.log(sort);
+        queryToSend["sort"] = JSON.parse(sort);
+    }
+
+
     sendAjaxRequest("POST", "http://localhost:9200/games/_search", JSON.stringify(queryToSend), function() {
         if (this.status != 200)
             return;
 
         responseJson = JSON.parse(this.responseText);
+
 
         if (document.querySelector("ul#results") == null) {
             let resultsDiv = document.createElement("div");
@@ -131,6 +150,7 @@ queryForm.onsubmit = function(event) {
             <li style="margin:1em;">
                 <p><strong>Name</strong>: ` + fields["name"][0] + `</p>
                 <p><strong>Price</strong>: ` + fields["price"][0] + `</p>
+                <p><strong>Release Date</strong>: ` + fields["release_date"][0] + `</p>
                 <p><strong>Description</strong>: `+ fields["short_description"][0] + `</p>
                 <div>
                     <p><strong>Genres</strong>:</p>

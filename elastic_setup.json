@@ -1,99 +1,11 @@
 
-
-POST test/_analyze
-{
-  "analyzer": "my_analyzer",
-  "text":"This game if free to play and is a first person shooter"
-}
-
-
-DELETE test
-PUT test
-{
-  "settings": {
-    "analysis": {
-      "analyzer": {
-        "my_analyzer": {
-          "tokenizer": "my_tokenizer"
-        }
-      },
-      "tokenizer": {
-        "my_tokenizer": {
-          "type": "pattern",
-          "pattern": "((free to play)|(first person shooter)|([a-zA-Z]+))",
-          "group":1
-        }
-      }
-    }
-  }
-}
-
-POST games/_search
-{
-  
-  "query":
-  {
-    
-    "function_score": {
-      "query": {
-        "query_string": {
-          "query": "first person shooter" ,
-          "fields": [
-            "name^0.5",
-            "short_description^0.1",
-            "detailed_description^0.75",
-            "about_the_game^0.2",
-            "categories^1.5",
-            "genres^1.5",
-            "developers^1",
-            "publishers^0.2"
-          ]
-        }
-      },
-
-      "functions": [
-        {
-          
-          "field_value_factor": 
-          {
-            "field": "tags.votes",
-            "factor": 0.02
-          }
-          
-        }
-      ], 
-      "boost_mode": "multiply"
-    }
-  },
-  "size":20, 
-  "fields": [
-    "name",
-    "price",
-    "genres",
-    "categories",
-    "developers",
-    "publishers",
-    "detailed_description",
-    "tags.name"
-  ],
-  "_source": false
-}
-
-DELETE games
 PUT games
 {
   "settings": {
     "analysis": {
-      "filter": 
-      {
-        "my_synonyms": {
-          "type": "synonym",
-          "synonyms_path": "synonyms.txt"
-        }
-      }, 
       "analyzer": {
         "descriptions_analyzer": {
-          "tokenizer": "pattern_tokenizer",
+          "tokenizer": "standard",
           "char_filter": [
             "html_strip"
           ],
@@ -118,8 +30,7 @@ PUT games
           "tokenizer": "names_tokenizer",
           "filter": [
             "lowercase",
-            "asciifolding",
-            "my_synonyms"
+            "asciifolding"
           ]
         }
       },
@@ -131,11 +42,6 @@ PUT games
             "-",
             "_"
           ]
-        },
-        "pattern_tokenizer": {
-          "type": "pattern",
-          "pattern": "((free to play)|(first person shooter)|([a-zA-Z]+))",
-          "group":1
         },
         "tags_tokenizer": {
           "type": "pattern",
@@ -154,39 +60,32 @@ PUT games
         }
       }
     }
-  }, 
+  },
   "mappings": {
     "properties": {
-      
       "name": {
         "type": "text",
         "analyzer": "names_analyzer"
       },
-      
       "release_date": {
         "type": "date",
         "format": "dd/MM/yyyy"
       },
-      
       "owners_range": {
         "type": "integer_range"
       },
-      
       "detailed_description": {
         "type": "text",
         "analyzer": "descriptions_analyzer"
       },
-      
       "short_description": {
         "type": "text",
         "analyzer": "descriptions_analyzer"
       },
-      
       "about_the_game": {
         "type": "text",
         "analyzer": "descriptions_analyzer"
       },
-      
       "achievements": {
         "properties": {
           "name": {
@@ -195,7 +94,6 @@ PUT games
           }
         }
       },
-      
       "tags": {
         "properties": {
           "name": {
@@ -204,35 +102,98 @@ PUT games
           }
         }
       },
-
       "windows": {
-        "type": "boolean", 
+        "type": "boolean",
         "index": false
       },
-      
       "linux": {
-        "type": "boolean", 
+        "type": "boolean",
         "index": false
       },
-      
       "mac": {
-        "type": "boolean", 
+        "type": "boolean",
         "index": false
       },
-      
       "website": {
-        "type": "text", 
+        "type": "text",
         "index": false
       },
-      
       "support_url": {
-        "type": "text", 
+        "type": "text",
         "index": false
       },
-      
       "support_email": {
-        "type": "text", 
+        "type": "text",
         "index": false
+      }
+    }
+  }
+}
+
+
+### NO SCHEMA
+PUT games
+{
+  "settings": {
+    "mappings": {
+      "properties": {
+        "name": {
+          "type": "text"
+        },
+        "release_date": {
+          "type": "date",
+          "format": "dd/MM/yyyy"
+        },
+        "owners_range": {
+          "type": "integer_range"
+        },
+        "detailed_description": {
+          "type": "text"
+        },
+        "short_description": {
+          "type": "text"
+        },
+        "about_the_game": {
+          "type": "text"
+        },
+        "achievements": {
+          "properties": {
+            "name": {
+              "type": "text"
+            }
+          }
+        },
+        "tags": {
+          "properties": {
+            "name": {
+              "type": "text"
+            }
+          }
+        },
+        "windows": {
+          "type": "boolean",
+          "index": false
+        },
+        "linux": {
+          "type": "boolean",
+          "index": false
+        },
+        "mac": {
+          "type": "boolean",
+          "index": false
+        },
+        "website": {
+          "type": "text",
+          "index": false
+        },
+        "support_url": {
+          "type": "text",
+          "index": false
+        },
+        "support_email": {
+          "type": "text",
+          "index": false
+        }
       }
     }
   }

@@ -71,13 +71,13 @@ queryForm.onsubmit = function(event) {
                 ]
             }
         },
-        "highlight": {
-            "pre_tags": ["<strong>"],
-            "post_tags": ["</strong>"],
-            "fields":  {
+        // "highlight": {
+        //     "pre_tags": ["<strong>"],
+        //     "post_tags": ["</strong>"],
+        //     "fields":  {
 
-            }
-        },
+        //     }
+        // },
         "size":20, 
         "fields": [
           "name",
@@ -91,19 +91,19 @@ queryForm.onsubmit = function(event) {
     let queryToSend = data;
     if(nameSearch.length != 0){
         data_new.query.bool.must.push({ "match": {"name":nameSearch}});
-        data_new.highlight.fields["name"] = {};
+        // data_new.highlight.fields["name"] = {};
         queryToSend = data_new;
     }
     
     if(descriptionSearch.length != 0){
         data_new.query.bool.must.push({ "match": {"short_description":descriptionSearch}})
-        data_new.highlight.fields["short_description"] = {};
+        // data_new.highlight.fields["short_description"] = {};
         queryToSend = data_new;
     }
 
     if(genresSearch.length != 0){
         data_new.query.bool.filter.push({"match": {"genres": genresSearch}});
-        data_new.highlight.fields["genres"] = {};
+        // data_new.highlight.fields["genres"] = {};
         queryToSend = data_new;
     }
     if(minPrice.length != 0 || maxPrice.length != 0){
@@ -172,7 +172,7 @@ queryTextMain.addEventListener("keyup", function() {
             "game-suggest": {
                 "prefix": text,
                 "completion": {
-                    "field": "name",
+                    "field": "name_completion",
                     "size": 20,
                     "fuzzy": {
                         "fuzziness": 0.5

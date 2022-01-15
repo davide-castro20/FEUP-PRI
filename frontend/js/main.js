@@ -187,7 +187,7 @@ queryTextMain.addEventListener("keyup", function() {
                     "field": "name_completion",
                     "size": 20,
                     "fuzzy": {
-                        "fuzziness": 0.5
+                        "fuzziness": 2
                     }
                 }
             }
@@ -202,19 +202,24 @@ queryTextMain.addEventListener("keyup", function() {
         let suggestions = responseJson["suggest"]["game-suggest"][0]["options"];
 
         if (suggestions.length > 0)
-            createResultsDiv();
+            createResultsDiv(true);
 
-        let gameElementsList = [];
+        // let gameElementsList = [];
+        // for (let i = 0; i < suggestions.length; ++i) {
+        //     let fields = suggestions[i]["_source"];
+        //     let gameElements = { "name": fields["name"], "price": fields["price"], 
+        //                         "release_date": fields["release_date"], "short_description": fields["short_description"],
+        //                         "genres": fields["genres"]};
+
+        //     gameElementsList.push(gameElements);
+        // }
+
+        let gamesNames = []
         for (let i = 0; i < suggestions.length; ++i) {
-            let fields = suggestions[i]["_source"];
-            let gameElements = { "name": fields["name"], "price": fields["price"], 
-                                "release_date": fields["release_date"], "short_description": fields["short_description"],
-                                "genres": fields["genres"]};
-
-            gameElementsList.push(gameElements);
+            gamesNames.push(suggestions[i]["_source"]["name"])
         }
 
-        showResults(gameElementsList);
+        showSuggestions(gamesNames);
     });
 });
 
@@ -229,12 +234,20 @@ function sendAjaxRequest(method, url, data, handler) {
     request.send(data);
 }
 
-function createResultsDiv() {
+function createResultsDiv(suggestions=false) {
     if (document.querySelector("ul#results") == null) {
         let resultsDiv = document.createElement("div");
         resultsDiv.setAttribute("class", "advance-search");
         resultsDiv.setAttribute("id", "resultsDiv");
         resultsDiv.style = "margin-top: 1em;";
+
+        if (suggestions) {
+            let sugHeader = document.createElement("h2");
+            sugHeader.setAttribute("id", "suggestionHeader")
+            sugHeader.innerHTML = "Name Suggestions";
+            resultsDiv.appendChild(sugHeader);
+        }
+
         let resultsList = document.createElement("ul");
         resultsList.setAttribute("id", "results");
         resultsDiv.appendChild(resultsList);
@@ -279,5 +292,47 @@ function showResults(gameElementsList) {
         queryResults.innerHTML += element;
     }
 
+    document.getElementById("listType").innerHTML = "results";
     document.getElementById("numberResults").innerHTML = gameElementsList.length;
+}
+
+function showSuggestions(gamesNamesList) {
+    if (gamesNamesList.length == 0) {
+        let resultsDiv = document.querySelector("div#resultsDiv");
+        if(resultsDiv != null)
+            resultsDiv.remove();
+    }
+
+    queryResults.innerHTML = "";
+
+    for (let i = 0; i < gamesNamesList.length; ++i) {
+        let listEl = document.createElement("li");
+        listEl.style = "margin:1em;";
+        let suggButton = document.createElement("button");
+        suggButton.innerHTML = gamesNamesList[i];
+        listEl.appendChild(suggButton);
+
+        suggButton.addEventListener("click", selectSuggestion);
+
+        queryResults.appendChild(listEl);
+        queryResults.appendChild(document.createElement("hr"));
+    }
+
+    document.getElementById("listType").innerHTML = "suggestions";
+    document.getElementById("numberResults").innerHTML = gamesNamesList.length;
+}
+
+function selectSuggestion(event) {
+    event.preventDefault();
+    let name = this.innerHTML;
+
+    let resultsDiv = document.querySelector("div#resultsDiv");
+
+    if(document.querySelector("#suggestionHeader") != null && resultsDiv != null) {
+        resultsDiv.remove();
+    }
+
+    document.getElementById("nameSearch").value = name;
+    document.getElementById("listType").innerHTML = "results";
+    document.getElementById("numberResults").innerHTML = 0;
 }

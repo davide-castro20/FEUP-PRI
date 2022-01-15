@@ -47,6 +47,15 @@ queryForm.onsubmit = function(event) {
             }
 
         },
+        "highlight": {
+            "pre_tags": ["<strong>"],
+            "post_tags": ["</strong>"],
+            "number_of_fragments": 0,
+            "fields":  {
+                "*": {
+                }
+            }
+        },
         "size":20, 
         "fields": [
           "name",
@@ -71,13 +80,14 @@ queryForm.onsubmit = function(event) {
                 ]
             }
         },
-        // "highlight": {
-        //     "pre_tags": ["<strong>"],
-        //     "post_tags": ["</strong>"],
-        //     "fields":  {
+        "highlight": {
+            "pre_tags": ["<strong>"],
+            "post_tags": ["</strong>"],
+            "number_of_fragments":0,
+            "fields":  {
 
-        //     }
-        // },
+            }
+        },
         "size":20, 
         "fields": [
           "name",
@@ -91,19 +101,19 @@ queryForm.onsubmit = function(event) {
     let queryToSend = data;
     if(nameSearch.length != 0){
         data_new.query.bool.must.push({ "match": {"name":nameSearch}});
-        // data_new.highlight.fields["name"] = {};
+        data_new.highlight.fields["name"] = {};
         queryToSend = data_new;
     }
     
     if(descriptionSearch.length != 0){
         data_new.query.bool.must.push({ "match": {"short_description":descriptionSearch}})
-        // data_new.highlight.fields["short_description"] = {};
+        data_new.highlight.fields["short_description"] = {};
         queryToSend = data_new;
     }
 
     if(genresSearch.length != 0){
         data_new.query.bool.filter.push({"match": {"genres": genresSearch}});
-        // data_new.highlight.fields["genres"] = {};
+        data_new.highlight.fields["genres"] = {};
         queryToSend = data_new;
     }
     if(minPrice.length != 0 || maxPrice.length != 0){
@@ -124,6 +134,7 @@ queryForm.onsubmit = function(event) {
         queryToSend["sort"] = JSON.parse(sort);
     }
 
+    console.log(queryToSend)
 
     sendAjaxRequest("POST", "http://localhost:9200/games/_search", JSON.stringify(queryToSend), function() {
         if (this.status != 200)
@@ -143,6 +154,7 @@ queryForm.onsubmit = function(event) {
 
         // console.log(hits);
         queryResults.innerHTML = "";
+        console.log(responseJson)
 
         let gameElementsList = []
         for (let i = 0; i < hits.length; ++i) {
@@ -153,7 +165,10 @@ queryForm.onsubmit = function(event) {
                                 "genres": fields["genres"]};
 
             for (var el in highlight) {
-                gameElements[el] = highlight[el];
+                let highlightedEl = highlight[el];
+                gameElements[el] = highlightedEl;
+                // if (highlightedEl.length < gameElements)
+                // gameElements[el] = highlight[el] + gameElements[el].substring(highlight[el].length, gameElements.length - 1);
             }
 
             gameElementsList.push(gameElements);

@@ -176,7 +176,12 @@ queryForm.onsubmit = function(event) {
 
 }
 
-queryTextMain.addEventListener("keyup", function() {
+queryTextMain.addEventListener("keyup", function(event) {
+
+    // ENTER key
+    if (event.keyCode === 13) {
+        return;
+    }
 
     let text = queryTextMain.value;
     let data = {

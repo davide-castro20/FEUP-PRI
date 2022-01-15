@@ -120,7 +120,7 @@ queryForm.onsubmit = function(event) {
         else{
             sort = '[{"'+option[0]+'" : {"order" : "'+option[1]+'", "format": "dd/MM/yyyy"}}]';  
         }
-        console.log(sort);
+        // console.log(sort);
         queryToSend["sort"] = JSON.parse(sort);
     }
 
@@ -234,7 +234,6 @@ function createResultsDiv() {
 function showResults(gameElementsList) {
 
     if (gameElementsList.length == 0) {
-        console.log("delete")
         let resultsDiv = document.querySelector("div#resultsDiv");
         if(resultsDiv != null)
             resultsDiv.remove();

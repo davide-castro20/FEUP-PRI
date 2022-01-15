@@ -1,4 +1,5 @@
 import json
+from xml.sax.handler import property_interning_dict
 from elasticsearch import Elasticsearch
 import requests
 
@@ -78,9 +79,8 @@ mapping = {
   }, 
   "mappings": {
     "properties": {
-      
       "name": {
-        "type": "text",
+        "type": "completion",
         "analyzer": "names_analyzer"
       },
       
@@ -128,46 +128,51 @@ mapping = {
 
       "windows": {
         "type": "boolean", 
-        "index": False
+        "index": "false"
       },
       
       "linux": {
         "type": "boolean", 
-        "index": False
+        "index": "false"
       },
       
       "mac": {
         "type": "boolean", 
-        "index": False
+        "index": "false"
       },
       
       "website": {
         "type": "text", 
-        "index": False
+        "index": "false"
       },
       
       "support_url": {
         "type": "text", 
-        "index": False
+        "index": "false"
       },
       
       "support_email": {
         "type": "text", 
-        "index": False
+        "index": "false"
       }
     }
   }
 }
 
-requests.delete('http://localhost:9200/games')
-headers = {"Content-Type": "application/json"}
-r = requests.put('http://localhost:9200/games', data=mapping, headers=headers)
-print(r)
 
 f1 = open("elastic_datasets/steam.json", "r")
 steam_json = json.load(f1)
 
 es = Elasticsearch()
+
+if es.indices.exists("games"):
+  print("Deleted 'games'")
+  es.indices.delete("games")
+
+es.indices.create(index='games', ignore=400, body=mapping)
+print("Created 'games'")
+
+print("Uploading documents...")
 i = 1
 c = 1000
 data_send = []
@@ -183,3 +188,5 @@ for doc in steam_json:
 
 if len(data_send) > 0:
     response = es.bulk(index='games', body=data_send)
+
+print("Completed.")

@@ -1,5 +1,6 @@
 queryForm = document.querySelector("form#search");
 queryResults = document.querySelector("ul#results");
+queryTextMain = document.querySelector("input#queryText");
 
 queryForm.onsubmit = function(event) {
     event.preventDefault();
@@ -70,6 +71,13 @@ queryForm.onsubmit = function(event) {
                 ]
             }
         },
+        "highlight": {
+            "pre_tags": ["<strong>"],
+            "post_tags": ["</strong>"],
+            "fields":  {
+
+            }
+        },
         "size":20, 
         "fields": [
           "name",
@@ -82,17 +90,20 @@ queryForm.onsubmit = function(event) {
     }
     let queryToSend = data;
     if(nameSearch.length != 0){
-        data_new.query.bool.must.push({ "match": {"name":nameSearch}})
+        data_new.query.bool.must.push({ "match": {"name":nameSearch}});
+        data_new.highlight.fields["name"] = {};
         queryToSend = data_new;
     }
     
     if(descriptionSearch.length != 0){
         data_new.query.bool.must.push({ "match": {"short_description":descriptionSearch}})
+        data_new.highlight.fields["short_description"] = {};
         queryToSend = data_new;
     }
 
     if(genresSearch.length != 0){
-        data_new.query.bool.filter.push({"match": {"genres": genresSearch}})
+        data_new.query.bool.filter.push({"match": {"genres": genresSearch}});
+        data_new.highlight.fields["genres"] = {};
         queryToSend = data_new;
     }
     if(minPrice.length != 0 || maxPrice.length != 0){
@@ -120,17 +131,7 @@ queryForm.onsubmit = function(event) {
 
         responseJson = JSON.parse(this.responseText);
 
-
-        if (document.querySelector("ul#results") == null) {
-            let resultsDiv = document.createElement("div");
-            resultsDiv.setAttribute("class", "advance-search");
-            resultsDiv.style = "margin-top: 1em;";
-            let resultsList = document.createElement("ul");
-            resultsList.setAttribute("id", "results");
-            resultsDiv.appendChild(resultsList);
-            document.querySelector("div.inner-form").appendChild(resultsDiv);
-            queryResults = resultsList;
-        }
+        createResultsDiv();
 
         // no results
         let hits = responseJson["hits"]["hits"];
@@ -143,38 +144,68 @@ queryForm.onsubmit = function(event) {
         // console.log(hits);
         queryResults.innerHTML = "";
 
+        let gameElementsList = []
         for (let i = 0; i < hits.length; ++i) {
-            let listObj = document.createElement("li");
             let fields = hits[i]["fields"];
-            let element = `
-            <li style="margin:1em;">
-                <p><strong>Name</strong>: ` + fields["name"][0] + `</p>
-                <p><strong>Price</strong>: ` + fields["price"][0] + `</p>
-                <p><strong>Release Date</strong>: ` + fields["release_date"][0] + `</p>
-                <p><strong>Description</strong>: `+ fields["short_description"][0] + `</p>
-                <div>
-                    <p><strong>Genres</strong>:</p>
-                    <ul>
-            `;
+            let highlight = hits[i]["highlight"];
+            let gameElements = { "name": fields["name"][0], "price": fields["price"][0], 
+                                "release_date": fields["release_date"][0], "short_description": fields["short_description"][0],
+                                "genres": fields["genres"]};
 
-            for (let j = 0; j < fields["genres"].length; ++j) {
-                element += "<p>" + fields["genres"][j] + "\n";
+            for (var el in highlight) {
+                gameElements[el] = highlight[el];
             }
 
-            element += `
-                    </ul>
-                </div>
-            </li>
-            <hr>
-            `;
-            queryResults.innerHTML += element;
+            gameElementsList.push(gameElements);
         }
-        // queryResults.innerHTML = this.responseText;
 
-        document.getElementById("numberResults").innerHTML = hits.length;
+        showResults(gameElementsList);
     });
 
 }
+
+queryTextMain.addEventListener("keyup", function() {
+
+    let text = queryTextMain.value;
+    let data = {
+        "suggest": {
+            "game-suggest": {
+                "prefix": text,
+                "completion": {
+                    "field": "name",
+                    "size": 20,
+                    "fuzzy": {
+                        "fuzziness": 0.5
+                    }
+                }
+            }
+        }
+    }
+
+    sendAjaxRequest("POST", "http://localhost:9200/games/_search", JSON.stringify(data), function () {
+        if (this.status != 200)
+            return;
+
+        let responseJson = JSON.parse(this.responseText);
+        let suggestions = responseJson["suggest"]["game-suggest"][0]["options"];
+
+        if (suggestions.length > 0)
+            createResultsDiv();
+
+        let gameElementsList = [];
+        for (let i = 0; i < suggestions.length; ++i) {
+            let fields = suggestions[i]["_source"];
+            let gameElements = { "name": fields["name"], "price": fields["price"], 
+                                "release_date": fields["release_date"], "short_description": fields["short_description"],
+                                "genres": fields["genres"]};
+
+            gameElementsList.push(gameElements);
+        }
+
+        showResults(gameElementsList);
+    });
+});
+
 
 function sendAjaxRequest(method, url, data, handler) {
     let request = new XMLHttpRequest();
@@ -184,4 +215,58 @@ function sendAjaxRequest(method, url, data, handler) {
     request.addEventListener('load', handler);
 
     request.send(data);
+}
+
+function createResultsDiv() {
+    if (document.querySelector("ul#results") == null) {
+        let resultsDiv = document.createElement("div");
+        resultsDiv.setAttribute("class", "advance-search");
+        resultsDiv.setAttribute("id", "resultsDiv");
+        resultsDiv.style = "margin-top: 1em;";
+        let resultsList = document.createElement("ul");
+        resultsList.setAttribute("id", "results");
+        resultsDiv.appendChild(resultsList);
+        document.querySelector("div.inner-form").appendChild(resultsDiv);
+        queryResults = resultsList;
+    }
+}
+
+function showResults(gameElementsList) {
+
+    if (gameElementsList.length == 0) {
+        console.log("delete")
+        let resultsDiv = document.querySelector("div#resultsDiv");
+        if(resultsDiv != null)
+            resultsDiv.remove();
+    }
+
+    queryResults.innerHTML = "";
+
+    for (let i = 0; i < gameElementsList.length; ++i) {
+        let element = `
+            <li style="margin:1em;">
+                <p><strong>Name</strong>: ` + gameElementsList[i]["name"] + `</p>
+                <p><strong>Price</strong>: ` + gameElementsList[i]["price"] + `</p>
+                <p><strong>Release Date</strong>: ` + gameElementsList[i]["release_date"] + `</p>
+                <p><strong>Description</strong>: `+ gameElementsList[i]["short_description"] + `</p>
+                <div>
+                    <p><strong>Genres</strong>:</p>
+                    <ul>
+            `;
+
+            for (let j = 0; j < gameElementsList[i]["genres"].length; ++j) {
+                element += "<p>" + gameElementsList[i]["genres"][j] + "\n";
+            }
+
+        element += `
+                    </ul>
+                </div>
+            </li>
+            <hr>
+            `;
+        
+        queryResults.innerHTML += element;
+    }
+
+    document.getElementById("numberResults").innerHTML = gameElementsList.length;
 }

@@ -818,7 +818,7 @@ legend {
       justify-content: center;
   -ms-flex-align: center;
       align-items: center;
-  background: #00b5e9;
+  background: #1b2838;
   padding: 15px;
   font-family: 'Roboto', sans-serif;
 }
@@ -879,7 +879,7 @@ legend {
   min-width: 100px;
   height: 40px;
   padding: 0 15px;
-  background: #57b846;
+  background: #2a475e;
   white-space: nowrap;
   border-radius: 3px;
   font-size: 14px;
@@ -891,7 +891,7 @@ legend {
 }
 
 .s007 form .inner-form .input-field .btn-search:hover {
-  background: #4ea63f;
+  background: #66c0f4;
 }
 
 .s007 form .inner-form .input-field .btn-delete {
@@ -964,7 +964,7 @@ legend {
 }
 
 .s007 form .inner-form .basic-search .input-field .result-count span {
-  color: #57b846;
+  color: #66c0f4;
   padding-right: 5px;
 }
 

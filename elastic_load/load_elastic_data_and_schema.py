@@ -82,7 +82,8 @@ mapping = {
     
       "name": {
         "type": "text",
-        "analyzer": "names_analyzer"
+        "analyzer": "names_analyzer",
+        "term_vector": "yes"
       },
 
       "name_completion": {
@@ -111,7 +112,8 @@ mapping = {
       
       "about_the_game": {
         "type": "text",
-        "analyzer": "descriptions_analyzer"
+        "analyzer": "descriptions_analyzer",
+        "term_vector": "yes"
       },
       
       "achievements": {
@@ -130,6 +132,11 @@ mapping = {
             "analyzer": "tags_analyzer"
           }
         }
+      },
+
+      "genres": {
+        "type": "text",
+        "term_vector": "yes"
       },
 
       "windows": {
@@ -164,6 +171,7 @@ mapping = {
     }
   }
 }
+
 
 f1 = open("../elastic_datasets/steam.json", "r")
 

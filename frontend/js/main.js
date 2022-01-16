@@ -130,7 +130,7 @@ queryForm.onsubmit = function(event) {
         else {
             sort = '[{"'+option[0]+'" : {"order" : "'+option[1]+'", "format": "dd/MM/yyyy"}}]';  
         }
-        // console.log(sort);
+
         queryToSend["sort"] = JSON.parse(sort);
     }
 
@@ -142,36 +142,9 @@ queryForm.onsubmit = function(event) {
 
         createResultsDiv();
 
-        // no results
         let hits = responseJson["hits"]["hits"];
-        if (hits.length == 0) {
-            queryResults.innerHTML = "No results";
-            document.getElementById("numberResults").innerHTML = 0;
-            return;
-        }
 
-        // console.log(hits);
-        queryResults.innerHTML = "";
-
-        let gameElementsList = []
-        for (let i = 0; i < hits.length; ++i) {
-            let fields = hits[i]["fields"];
-            let highlight = hits[i]["highlight"];
-            let gameElements = { "name": fields["name"][0], "price": fields["price"][0], 
-                                "release_date": fields["release_date"][0], "short_description": fields["short_description"][0],
-                                "genres": fields["genres"]};
-
-            for (var el in highlight) {
-                let highlightedEl = highlight[el];
-                gameElements[el] = highlightedEl;
-                // if (highlightedEl.length < gameElements)
-                // gameElements[el] = highlight[el] + gameElements[el].substring(highlight[el].length, gameElements.length - 1);
-            }
-
-            gameElementsList.push(gameElements);
-        }
-
-        showResults(gameElementsList);
+        parseHitsAndShowResults(hits);
     });
 
 }
@@ -209,16 +182,6 @@ queryTextMain.addEventListener("keyup", function(event) {
         if (suggestions.length > 0)
             createResultsDiv(true);
 
-        // let gameElementsList = [];
-        // for (let i = 0; i < suggestions.length; ++i) {
-        //     let fields = suggestions[i]["_source"];
-        //     let gameElements = { "name": fields["name"], "price": fields["price"], 
-        //                         "release_date": fields["release_date"], "short_description": fields["short_description"],
-        //                         "genres": fields["genres"]};
-
-        //     gameElementsList.push(gameElements);
-        // }
-
         let gamesNames = []
         for (let i = 0; i < suggestions.length; ++i) {
             gamesNames.push(suggestions[i]["_source"]["name"])
@@ -239,9 +202,15 @@ function sendAjaxRequest(method, url, data, handler) {
     request.send(data);
 }
 
-function createResultsDiv(suggestions=false) {
-    if (document.querySelector("ul#results") == null) {
-        let resultsDiv = document.createElement("div");
+function createResultsDiv(suggestions=false, likeThisName="") {
+    
+    let resultsDiv = document.querySelector("div#resultsDiv");
+    if (resultsDiv == null || suggestions || likeThisName != "") {
+
+        if (resultsDiv != null)
+            resultsDiv.remove();
+
+        resultsDiv = document.createElement("div");
         resultsDiv.setAttribute("class", "advance-search");
         resultsDiv.setAttribute("id", "resultsDiv");
         resultsDiv.style = "margin-top: 1em;";
@@ -251,6 +220,14 @@ function createResultsDiv(suggestions=false) {
             sugHeader.setAttribute("id", "suggestionHeader")
             sugHeader.innerHTML = "Name Suggestions";
             resultsDiv.appendChild(sugHeader);
+
+        } 
+        
+        if (likeThisName != "") {
+            let moreLikeHeader = document.createElement("h2");
+            moreLikeHeader.setAttribute("id", "moreLikeThisHeader")
+            moreLikeHeader.innerHTML = "More like \"" + likeThisName + "\"";
+            resultsDiv.appendChild(moreLikeHeader);
         }
 
         let resultsList = document.createElement("ul");
@@ -261,19 +238,51 @@ function createResultsDiv(suggestions=false) {
     }
 }
 
-function showResults(gameElementsList) {
+function parseHitsAndShowResults(hits, mlt=false) {
 
-    if (gameElementsList.length == 0) {
-        let resultsDiv = document.querySelector("div#resultsDiv");
-        if(resultsDiv != null)
-            resultsDiv.remove();
+    if (hits.length == 0) {
+        queryResults.innerHTML = "No results";
+        document.getElementById("numberResults").innerHTML = 0;
+        return;
     }
 
     queryResults.innerHTML = "";
 
+    let gameElementsList = []
+    for (let i = 0; i < hits.length; ++i) {
+
+        let gameElements = {}
+        let gameId = hits[i]["_id"];
+
+        if(!mlt) {
+            let fields = hits[i]["fields"];
+            let highlight = hits[i]["highlight"];
+            gameElements = { "_id": gameId, "name": fields["name"][0], "price": fields["price"][0], 
+                                "release_date": fields["release_date"][0], "short_description": fields["short_description"][0],
+                                "genres": fields["genres"]};
+
+            for (var el in highlight) {
+                let highlightedEl = highlight[el];
+                gameElements[el] = highlightedEl;
+                // if (highlightedEl.length < gameElements)
+                // gameElements[el] = highlight[el] + gameElements[el].substring(highlight[el].length, gameElements.length - 1);
+            }
+
+        } else {
+            let fields = hits[i]["_source"];
+            let highlight = hits[i]["highlight"];
+            gameElements = { "_id": gameId, "name": fields["name"], "price": fields["price"], 
+                                "release_date": fields["release_date"], "short_description": fields["short_description"],
+                                "genres": fields["genres"]};
+        }
+
+        gameElementsList.push(gameElements);
+    }
+
     for (let i = 0; i < gameElementsList.length; ++i) {
-        let element = `
-            <li style="margin:1em;">
+        let listEl = document.createElement("li");
+        listEl.style = "margin:1em;";
+        listEl.innerHTML = `
                 <p><strong>Name</strong>: ` + gameElementsList[i]["name"] + `</p>
                 <p><strong>Price</strong>: ` + gameElementsList[i]["price"] + `</p>
                 <p><strong>Release Date</strong>: ` + gameElementsList[i]["release_date"] + `</p>
@@ -284,17 +293,24 @@ function showResults(gameElementsList) {
             `;
 
             for (let j = 0; j < gameElementsList[i]["genres"].length; ++j) {
-                element += "<p>" + gameElementsList[i]["genres"][j] + "\n";
+                listEl.innerHTML += "<p>" + gameElementsList[i]["genres"][j] + "\n";
             }
 
-        element += `
+        listEl.innerHTML += `
                     </ul>
                 </div>
-            </li>
-            <hr>
             `;
         
-        queryResults.innerHTML += element;
+        let moreLikeThisBtn = document.createElement("button");
+        moreLikeThisBtn.setAttribute("data-id", gameElementsList[i]["_id"])
+        moreLikeThisBtn.setAttribute("data-value", gameElementsList[i]["name"])
+        moreLikeThisBtn.innerHTML = "More like this";
+        listEl.appendChild(moreLikeThisBtn);
+
+        moreLikeThisBtn.addEventListener("click", moreLikeThis);
+        queryResults.appendChild(listEl);
+        queryResults.appendChild(document.createElement("hr"));
+        
     }
 
     document.getElementById("listType").innerHTML = "results";
@@ -317,7 +333,7 @@ function showSuggestions(gamesNamesList) {
         suggButton.innerHTML = gamesNamesList[i];
         listEl.appendChild(suggButton);
 
-        suggButton.addEventListener("click", selectSuggestion);
+        suggButton.addEventListener("click", selectNameSuggestion);
 
         queryResults.appendChild(listEl);
         queryResults.appendChild(document.createElement("hr"));
@@ -327,7 +343,7 @@ function showSuggestions(gamesNamesList) {
     document.getElementById("numberResults").innerHTML = gamesNamesList.length;
 }
 
-function selectSuggestion(event) {
+function selectNameSuggestion(event) {
     event.preventDefault();
     let name = this.innerHTML;
 
@@ -340,4 +356,41 @@ function selectSuggestion(event) {
     document.getElementById("nameSearch").value = name;
     document.getElementById("listType").innerHTML = "results";
     document.getElementById("numberResults").innerHTML = 0;
+}
+
+function moreLikeThis(event) {
+    event.preventDefault();
+    let gameId = this.getAttribute("data-id");
+    let gameName = this.getAttribute("data-value");
+
+    let data = {
+        "query": {
+          "more_like_this": {
+            "fields": [ "name", "about_the_game", "genres" ],
+            "like": [
+              {
+                "_index": "games",
+                "_id": gameId
+              }
+            ],
+            "min_term_freq": 1,
+            "max_query_terms": 10,
+            "max_doc_freq": 15000
+          }
+        }
+    }
+
+    sendAjaxRequest("POST", "http://localhost:9200/games/_search", JSON.stringify(data), function() {
+        if(this.status != 200)
+            return;
+
+        let responseJson = JSON.parse(this.responseText);
+
+        let hits = responseJson["hits"]["hits"];
+
+        if (hits.length > 0)
+            createResultsDiv(false, gameName);
+        
+        parseHitsAndShowResults(hits, true); 
+    });
 }

@@ -3,6 +3,22 @@ Project for **Information Processing and Retrieval** Course at FEUP
 
 Dataset used: https://www.kaggle.com/nikdavis/steam-store-games
 
+## Instructions
+
+To run this project, **Docker** and **Python 3.8.x** is required.
+
+In the root of the project, start the Docker containers.
+```properties
+docker-compose up
+```
+
+After the ElasticSearch container is operational, load the mappings and documents
+```properties 
+python elastic_load/load_elastic_data_and_schema.py
+```
+
+ElasticSearch will be available through the port 9200 and the GUI in the port 8080 in localhost.
+
 ## Group 2132
 | Name             | Number    | E-Mail                   |
 | ---------------- | --------- | ------------------------ |

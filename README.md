@@ -3,6 +3,8 @@ Project for **Information Processing and Retrieval** Course at FEUP
 
 Dataset used: https://www.kaggle.com/nikdavis/steam-store-games
 
+**Final grade**: 17.28
+
 ## Instructions
 
 To run this project, **Docker** and **Python 3.8.x** is required.
